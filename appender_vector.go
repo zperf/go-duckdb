@@ -7,6 +7,7 @@ package duckdb
 import "C"
 
 import (
+	"database/sql"
 	"reflect"
 	"strconv"
 	"time"
@@ -93,6 +94,14 @@ func tryPrimitiveCast[T any](val any, expected string) (any, error) {
 		return v, nil
 	}
 
+	switch v := val.(type) {
+	case sql.NullBool:
+		if v.Valid {
+			return v.Bool, nil
+		}
+		return nil, nil
+	}
+
 	goType := reflect.TypeOf(val)
 	return nil, castError(goType.String(), expected)
 }
@@ -107,6 +116,11 @@ func tryNumericCast[T numericType](val any, expected string) (any, error) {
 	switch v := val.(type) {
 	case float64:
 		return convertNumericType[float64, T](v), nil
+	case sql.NullInt32:
+		if v.Valid {
+			return v.Int32, nil
+		}
+		return nil, nil
 	}
 
 	goType := reflect.TypeOf(val)
