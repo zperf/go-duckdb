@@ -121,6 +121,16 @@ func tryNumericCast[T numericType](val any, expected string) (any, error) {
 			return v.Int32, nil
 		}
 		return nil, nil
+	case sql.NullInt64:
+		if v.Valid {
+			return v.Int64, nil
+		}
+		return nil, nil
+	case sql.Null[uint64]:
+		if v.Valid {
+			return v.V, nil
+		}
+		return nil, nil
 	}
 
 	goType := reflect.TypeOf(val)
